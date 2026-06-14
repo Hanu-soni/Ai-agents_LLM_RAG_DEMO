@@ -17,7 +17,6 @@ export function chunkText(
   targetTokens = 800,
   overlapTokens = 100
 ): TextChunk[] {
-  const targetChars = targetTokens * 4;
   const overlapChars = overlapTokens * 4;
 
   // Split on sentence boundaries (period/newline followed by whitespace or end)
