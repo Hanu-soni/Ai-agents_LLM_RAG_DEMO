@@ -1,5 +1,5 @@
 import { prisma } from "./client";
-import type { Agent, Document, Message, Prisma } from "@prisma/client";
+import type { Agent, ApiKey, Document, Message, Prisma } from "@prisma/client";
 
 // ── Agents ────────────────────────────────────────────────────────────────────
 
@@ -69,4 +69,27 @@ export async function saveMessage(
   content: string
 ): Promise<Message> {
   return prisma.message.create({ data: { agentId, role, content } });
+}
+
+// ── API Keys ──────────────────────────────────────────────────────────────────
+
+export async function listApiKeys(agentId: string): Promise<ApiKey[]> {
+  return prisma.apiKey.findMany({
+    where: { agentId },
+    orderBy: { createdAt: "desc" },
+    // Never expose hashedKey to the client — select only safe fields
+    select: { id: true, agentId: true, label: true, createdAt: true, hashedKey: false },
+  }) as unknown as ApiKey[];
+}
+
+export async function createApiKey(
+  agentId: string,
+  hashedKey: string,
+  label: string
+): Promise<ApiKey> {
+  return prisma.apiKey.create({ data: { agentId, hashedKey, label } });
+}
+
+export async function deleteApiKey(id: string): Promise<void> {
+  await prisma.apiKey.delete({ where: { id } });
 }
